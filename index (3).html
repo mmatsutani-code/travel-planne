@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Da Nang Deux ✈️</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #faf9f7; --surface: #fff; --border: #e8e4de;
+  --text: #1a1815; --muted: #8a8480; --accent: #c47b5a; --al: #f5ede7;
+  --r: 12px; --f: 'Hiragino Sans','Noto Sans JP',sans-serif;
+}
+body { font-family: var(--f); background: var(--bg); color: var(--text); min-height: 100vh; }
+#setup { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.sc { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 28px; max-width: 400px; width: 100%; }
+.sc h1 { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+.sc p { font-size: 13px; color: var(--muted); text-align: center; margin-bottom: 24px; line-height: 1.6; }
+.lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; display: block; }
+.hint { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+.hint a { color: var(--accent); }
+.divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; }
+.divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--border); }
+.divider span { font-size:12px; color:var(--muted); }
+#app { display: none; }
+header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 13px 18px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; }
+header h1 { font-size: 15px; font-weight: 700; flex: 1; }
+.rbadge { font-size: 11px; background: var(--al); color: var(--accent); padding: 3px 10px; border-radius: 20px; font-weight: 600; cursor: pointer; }
+.sdot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; flex-shrink: 0; transition: background .3s; }
+.sdot.ok { background: #5cb85c; }
+.sdot.err { background: #e74c3c; }
+.tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); }
+.tab { flex: 1; padding: 11px 4px; text-align: center; font-size: 11px; cursor: pointer; border: none; background: none; color: var(--muted); border-bottom: 2px solid transparent; font-family: var(--f); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
+.ti { display: block; font-size: 17px; margin-bottom: 2px; }
+main { max-width: 600px; margin: 0 auto; padding: 14px; }
+.sec { display: none; }
+.sec.active { display: block; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; margin-bottom: 12px; }
+.ct { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; }
+.pb { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; margin: 6px 0 4px; }
+.pf { height: 100%; background: var(--accent); border-radius: 99px; transition: width .4s; }
+.pl { font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; }
+.cr { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.cr:last-child { border-bottom: none; }
+.cr input[type=checkbox] { width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
+.cr label { font-size: 14px; flex: 1; cursor: pointer; }
+.cr label.done { text-decoration: line-through; color: var(--muted); }
+.cl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin: 14px 0 4px; }
+.db { background: none; border: none; font-size: 15px; cursor: pointer; color: var(--muted); padding: 2px 6px; border-radius: 6px; }
+.db:hover { background: var(--al); }
+.ir { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.ir:last-child { margin-bottom: 0; }
+input[type=text],input[type=date],input[type=time],select {
+  font-family: var(--f); font-size: 14px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); width: 100%; outline: none; transition: border-color .2s;
+}
+input:focus,select:focus { border-color: var(--accent); }
+.btn { padding: 9px 16px; border-radius: 8px; border: none; font-size: 14px; font-family: var(--f); cursor: pointer; font-weight: 600; transition: opacity .2s; white-space: nowrap; }
+.ba { background: var(--accent); color: #fff; }
+.bo { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn:hover { opacity: .82; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.g8 { display: flex; flex-direction: column; gap: 8px; }
+.dtabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.dt { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); font-size: 12px; cursor: pointer; color: var(--muted); font-family: var(--f); transition: all .2s; }
+.dt.active { background: var(--al); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.si { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+.si:last-child { border-bottom: none; }
+.st { font-size: 12px; font-weight: 700; color: var(--accent); min-width: 40px; padding-top: 1px; }
+.sn { font-size: 14px; font-weight: 500; }
+.sm { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.pi { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+.pi:last-child { border-bottom: none; }
+.pg { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.pc { aspect-ratio: 1; border-radius: 8px; overflow: hidden; position: relative; background: var(--bg); border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.pc img { width:100%; height:100%; object-fit:cover; }
+.pp { font-size: 26px; color: var(--muted); }
+.pd { position: absolute; top:4px; right:4px; background: rgba(0,0,0,.42); border:none; border-radius:50%; width:22px; height:22px; cursor:pointer; color:#fff; font-size:13px; display:flex; align-items:center; justify-content:center; }
+.empty { text-align:center; padding:28px 16px; color:var(--muted); font-size:14px; }
+.ei { font-size:34px; display:block; margin-bottom:8px; }
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:10px 20px; border-radius:20px; font-size:13px; z-index:999; opacity:0; pointer-events:none; transition:opacity .3s; max-width:90vw; text-align:center; }
+.toast.show { opacity:1; }
+.spin { display:inline-block; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div id="setup">
+  <div class="sc">
+    <div style="font-size:40px;text-align:center;margin-bottom:12px;">✈️</div>
+    <h1>Da Nang Deux</h1>
+    <p>2人でリアルタイム共有できる旅行準備アプリ</p>
+
+    <div id="step2">
+      <div>
+        <span class="lbl">新しく旅行を作る</span>
+        <div class="ir">
+          <input type="text" id="new-room" placeholder="Da Nang Deux" />
+          <button class="btn ba" onclick="createRoom()">作成</button>
+        </div>
+      </div>
+      <div class="divider"><span>または</span></div>
+      <div>
+        <span class="lbl">招待コードで参加</span>
+        <p class="hint">彼氏から届いたコードを入力してください</p>
+        <div class="ir">
+          <input type="text" id="join-code" placeholder="例: 6846b2a74..." />
+          <button class="btn bo" onclick="joinRoom()">参加</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <span style="font-size:20px;">✈️</span>
+    <h1 id="app-title">Da Nang Deux</h1>
+    <span class="rbadge" id="rbadge" onclick="copyCode()">コードをコピー</span>
+    <div class="sdot" id="sdot"></div>
+  </header>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('cl',this)"><span class="ti">🧳</span>持ち物</button>
+    <button class="tab" onclick="showTab('sc',this)"><span class="ti">📅</span>日程</button>
+    <button class="tab" onclick="showTab('pl',this)"><span class="ti">📍</span>場所</button>
+    <button class="tab" onclick="showTab('al',this)"><span class="ti">📷</span>アルバム</button>
+  </div>
+  <main>
+    <div class="sec active" id="tab-cl">
+      <div class="card">
+        <div class="ct">準備の進捗</div>
+        <div class="pl"><span id="pt">0 / 0 完了</span><span id="pp">0%</span></div>
+        <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
+      </div>
+      <div class="card" id="cl-body"></div>
+      <div class="card">
+        <div class="ct">アイテムを追加</div>
+        <div class="g8">
+          <input type="text" id="new-item" placeholder="例：パスポート" />
+          <div class="ir">
+            <select id="new-cat"><option>書類</option><option>服・靴</option><option>美容・衛生</option><option>電子機器</option><option>その他</option></select>
+            <button class="btn ba" onclick="addItem()">追加</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="tab-sc">
+      <div class="card">
+        <div class="ct">旅行期間</div>
+        <div class="g8">
+          <div class="ir"><span style="font-size:13px;color:var(--muted);min-width:36px;">出発</span><input type="date" id="sd" onchange="saveTrip()" /></div>
+          <div class="ir"><span style="font-size:13px;color:var(--muted);min-width:36px;">帰着</span><input type="date" id="ed" onchange="saveTrip()" /></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct">日別スケジュール</div>
+        <div class="dtabs" id="dtabs"></div>
+        <div id="slist"></div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px;">
+          <div class="ct">予定を追加</div>
+          <div class="g8">
+            <div class="ir"><input type="time" id="s-time" style="width:110px;flex-shrink:0;" /><input type="text" id="s-title" placeholder="例：ランチ" /></div>
+            <div class="ir"><input type="text" id="s-note" placeholder="メモ（任意）" /><button class="btn ba" onclick="addSched()">追加</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="tab-pl">
+      <div class="card" id="pl-body"></div>
+      <div class="card">
+        <div class="ct">場所を追加</div>
+        <div class="g8">
+          <div class="ir">
+            <select id="p-emoji" style="width:68px;flex-shrink:0;"><option>🍽</option><option>🏛</option><option>🌿</option><option>🛍</option><option>☕</option><option>🏖</option><option>🎭</option><option>📸</option><option>⭐</option><option>🏨</option></select>
+            <input type="text" id="p-name" placeholder="場所の名前" />
+          </div>
+          <div class="ir"><input type="text" id="p-memo" placeholder="メモ（任意）" /><button class="btn ba" onclick="addPlace()">追加</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="tab-al">
+      <div class="card" id="al-body"></div>
+      <div class="card">
+        <div class="ct">アルバムリンクを追加</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Googleフォトでアルバムを作って「共有リンク」をここに貼ってください。2人で同じアルバムを見られます📸</p>
+        <div class="g8">
+          <input type="text" id="al-title" placeholder="タイトル（例：ダナン1日目）" />
+          <div class="ir">
+            <input type="text" id="al-url" placeholder="https://photos.google.com/..." />
+            <button class="btn ba" onclick="addAlbum()">追加</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DEFAULT_CL = {
+  '書類':['パスポート / 身分証明書','航空券・乗車券','ホテルの予約確認書','クレジットカード','現金・両替'],
+  '服・靴':['トップス','ボトムス','インナー','靴下','パジャマ','羽織もの','靴'],
+  '美容・衛生':['歯ブラシ・歯磨き粉','洗顔料','シャンプー','基礎化粧品','日焼け止め','化粧品'],
+  '電子機器':['スマートフォン','充電器・ケーブル','モバイルバッテリー','カメラ'],
+  'その他':['薬','エコバッグ','折りたたみ傘']
+};
+
+let API_KEY = '$2a$10$PtcrWxkPuSlAhrTGG9UIDuwpml5QKDi4ALRAAqbRuL57hTMW3YEIy', BIN_ID = '', pollTimer = null;
+let data = { name:'Da Nang Deux', trip:{s:'',e:''}, checklist:{}, schedule:{}, places:{} };
+let currentDay = 1, photos = [], saving = false;
+
+function toast(msg, dur=2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+function ls(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}}
+function lss(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+// ---- JSONBIN API ----
+async function binGet(binId) {
+  const r = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+    headers: { 'X-Master-Key': API_KEY }
+  });
+  if (!r.ok) throw new Error('取得失敗');
+  const j = await r.json();
+  return j.record;
+}
+async function binSet(binId, record) {
+  const r = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+    body: JSON.stringify(record)
+  });
+  if (!r.ok) throw new Error('保存失敗');
+}
+async function binCreate(record) {
+  const r = await fetch('https://api.jsonbin.io/v3/b', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY, 'X-Bin-Private': 'false' },
+    body: JSON.stringify(record)
+  });
+  if (!r.ok) throw new Error('作成失敗');
+  const j = await r.json();
+  return j.metadata.id;
+}
+
+// ---- SETUP ----
+function doSetup() {
+  const k = document.getElementById('cfg-key').value.trim();
+  if (!k) { toast('APIキーを入力してください'); return; }
+  API_KEY = k; lss('jb_key', k);
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = 'block';
+}
+
+async function createRoom() {
+  const name = document.getElementById('new-room').value.trim() || 'Da Nang Deux';
+  const initData = { name, trip:{s:'',e:''}, schedule:{}, places:{}, checklist:{} };
+  Object.entries(DEFAULT_CL).forEach(([cat,names]) => {
+    initData.checklist[cat] = names.map((n,i) => ({id:'i'+i,name:n,done:false}));
+  });
+  try {
+    toast('作成中… ⏳', 5000);
+    BIN_ID = await binCreate(initData);
+    lss('jb_bin', BIN_ID);
+    data = initData;
+    enterApp();
+  } catch(e) { toast('エラー: ' + e.message); }
+}
+
+async function joinRoom() {
+  const code = document.getElementById('join-code').value.trim();
+  if (!code) { toast('コードを入力してください'); return; }
+  BIN_ID = code; lss('jb_bin', BIN_ID);
+  try {
+    toast('接続中… ⏳', 3000);
+    data = await binGet(BIN_ID);
+    enterApp();
+  } catch(e) { toast('部屋が見つかりません: ' + e.message); }
+}
+
+function enterApp() {
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('app-title').textContent = data.name || 'Da Nang Deux';
+  syncUI();
+  startPoll();
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(BIN_ID).then(() => toast('招待コードをコピー！彼氏に送ってね🎉'));
+}
+
+// ---- POLL (every 10s) ----
+function startPoll() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(async () => {
+    if (saving) return;
+    try {
+      const fresh = await binGet(BIN_ID);
+      data = fresh;
+      document.getElementById('sdot').className = 'sdot ok';
+      syncUI();
+    } catch { document.getElementById('sdot').className = 'sdot err'; }
+  }, 10000);
+}
+
+async function push() {
+  saving = true;
+  try {
+    await binSet(BIN_ID, data);
+    document.getElementById('sdot').className = 'sdot ok';
+  } catch(e) {
+    toast('保存エラー: ' + e.message);
+    document.getElementById('sdot').className = 'sdot err';
+  }
+  saving = false;
+}
+
+function syncUI() {
+  document.getElementById('sd').value = data.trip?.s || '';
+  document.getElementById('ed').value = data.trip?.e || '';
+  renderCL(); updateDayTabs(); renderSched(); renderPlaces(); renderAlbum();
+}
+
+// ---- TABS ----
+function showTab(id, btn) {
+  document.querySelectorAll('.sec').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active'); btn.classList.add('active');
+}
+
+// ---- CHECKLIST ----
+function renderCL() {
+  const body = document.getElementById('cl-body');
+  let total=0, done=0, html='';
+  const cl = data.checklist || {};
+  Object.entries(cl).forEach(([cat,items]) => {
+    if (!items?.length) return;
+    html += `<div class="cl">${cat}</div>`;
+    items.forEach((item,i) => {
+      total++; if (item.done) done++;
+      html += `<div class="cr">
+        <input type="checkbox" id="c${cat}${i}" ${item.done?'checked':''} onchange="toggleItem('${cat}',${i},this.checked)">
+        <label for="c${cat}${i}" class="${item.done?'done':''}">${item.name}</label>
+        <button class="db" onclick="delItem('${cat}',${i})">×</button>
+      </div>`;
+    });
+  });
+  body.innerHTML = html || '<div class="empty"><span class="ei">✅</span>アイテムなし</div>';
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('pf').style.width = pct+'%';
+  document.getElementById('pt').textContent = done+' / '+total+' 完了';
+  document.getElementById('pp').textContent = pct+'%';
+}
+function toggleItem(cat,i,val) {
+  data.checklist[cat][i].done = val; renderCL(); push();
+}
+function delItem(cat,i) {
+  data.checklist[cat].splice(i,1); renderCL(); push();
+}
+function addItem() {
+  const name = document.getElementById('new-item').value.trim();
+  const cat = document.getElementById('new-cat').value;
+  if (!name) return;
+  if (!data.checklist[cat]) data.checklist[cat] = [];
+  data.checklist[cat].push({id:'i'+Date.now(),name,done:false});
+  document.getElementById('new-item').value='';
+  renderCL(); push();
+}
+
+// ---- SCHEDULE ----
+function saveTrip() {
+  data.trip = { s: document.getElementById('sd').value, e: document.getElementById('ed').value };
+  updateDayTabs(); push();
+}
+function updateDayTabs() {
+  const s=data.trip?.s, e=data.trip?.e;
+  if (!s||!e) return;
+  const days=Math.ceil((new Date(e)-new Date(s))/86400000)+1;
+  if (days<1) return;
+  const c=document.getElementById('dtabs'); c.innerHTML='';
+  for (let d=1;d<=days;d++) {
+    const btn=document.createElement('button'); btn.className='dt'+(d===currentDay?' active':'');
+    const dt=new Date(s); dt.setDate(dt.getDate()+d-1);
+    btn.textContent=(dt.getMonth()+1)+'/'+(dt.getDate())+'（'+'日月火水木金土'[dt.getDay()]+'）';
+    const dd=d; btn.onclick=()=>{currentDay=dd;updateDayTabs();renderSched();};
+    c.appendChild(btn);
+  }
+}
+function renderSched() {
+  const key='day'+currentDay;
+  const items=(data.schedule[key]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
+  const list=document.getElementById('slist');
+  if (!items.length){list.innerHTML='<div class="empty" style="padding:12px 0;"><span class="ei">📋</span>まだ予定がありません</div>';return;}
+  list.innerHTML=items.map((it,idx)=>`<div class="si">
+    <div class="st">${it.time||'--:--'}</div>
+    <div style="flex:1;"><div class="sn">${it.title}</div>${it.note?`<div class="sm">${it.note}</div>`:''}</div>
+    <button class="db" onclick="delSched('${key}',${idx})">×</button>
+  </div>`).join('');
+}
+function addSched() {
+  const time=document.getElementById('s-time').value;
+  const title=document.getElementById('s-title').value.trim();
+  const note=document.getElementById('s-note').value.trim();
+  if (!title) return;
+  const key='day'+currentDay;
+  if (!data.schedule[key]) data.schedule[key]=[];
+  data.schedule[key].push({time:time||'00:00',title,note});
+  document.getElementById('s-title').value=''; document.getElementById('s-note').value='';
+  renderSched(); push();
+}
+function delSched(key,i) { data.schedule[key].splice(i,1); renderSched(); push(); }
+
+// ---- PLACES ----
+function renderPlaces() {
+  const body=document.getElementById('pl-body');
+  const items=data.places ? Object.values(data.places) : [];
+  if (!items.length){body.innerHTML='<div class="empty"><span class="ei">🗺</span>まだ登録がありません</div>';return;}
+  const keys=Object.keys(data.places);
+  body.innerHTML=keys.map((k,idx)=>{const p=data.places[k];return`<div class="pi">
+    <div style="font-size:22px;flex-shrink:0;">${p.emoji}</div>
+    <div style="flex:1;"><div style="font-size:14px;font-weight:500;">${p.name}</div>${p.memo?`<div style="font-size:12px;color:var(--muted);">${p.memo}</div>`:''}</div>
+    <button class="db" onclick="delPlace('${k}')">×</button>
+  </div>`;}).join('');
+}
+function addPlace() {
+  const emoji=document.getElementById('p-emoji').value;
+  const name=document.getElementById('p-name').value.trim();
+  const memo=document.getElementById('p-memo').value.trim();
+  if (!name) return;
+  if (!data.places) data.places={};
+  data.places['p'+Date.now()]={emoji,name,memo};
+  document.getElementById('p-name').value=''; document.getElementById('p-memo').value='';
+  renderPlaces(); push();
+}
+function delPlace(k) { delete data.places[k]; renderPlaces(); push(); }
+
+// ---- ALBUM ----
+function renderAlbum() {
+  const body = document.getElementById('al-body');
+  const albums = data.albums ? Object.entries(data.albums) : [];
+  if (!albums.length) {
+    body.innerHTML = '<div class="empty"><span class="ei">📸</span>まだアルバムがありません<br><span style="font-size:12px;">Googleフォトのリンクを追加してね</span></div>';
+    return;
+  }
+  body.innerHTML = '<div class="ct">アルバム一覧</div>' + albums.map(([k,a]) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <span style="font-size:22px;">📸</span>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:500;">${a.title}</div>
+        <a href="${a.url}" target="_blank" style="font-size:12px;color:var(--accent);">アルバムを開く →</a>
+      </div>
+      <button class="db" onclick="delAlbum('${k}')">×</button>
+    </div>`).join('');
+}
+function addAlbum() {
+  const title = document.getElementById('al-title').value.trim();
+  const url = document.getElementById('al-url').value.trim();
+  if (!title || !url) { toast('タイトルとURLを入力してください'); return; }
+  if (!data.albums) data.albums = {};
+  data.albums['a'+Date.now()] = {title, url};
+  document.getElementById('al-title').value = '';
+  document.getElementById('al-url').value = '';
+  renderAlbum(); push();
+}
+function delAlbum(k) { delete data.albums[k]; renderAlbum(); push(); }
+
+// ---- INIT ----
+const savedBin = ls('jb_bin',null);
+if (savedBin) {
+  BIN_ID=savedBin;
+  binGet(BIN_ID).then(d=>{data=d;enterApp();}).catch(()=>{
+    lss('jb_bin',null);
+    document.getElementById('setup').style.display='flex';
+  });
+}
+
+renderPhotos();
+</script>
+</body>
+</html>
